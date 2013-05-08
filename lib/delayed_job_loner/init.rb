@@ -12,7 +12,7 @@ module Delayed
         def check_uniqueness
           if loner || unique_on
             self.loner_hash = generate_loner_hash
-            self.errors.add(:base, "Job already exists") unless self.class.where(loner_hash: self.loner_hash, locked_by: nil).first.nil?
+            self.errors.add(:base, "Job already exists") unless self.class.find(:all, :conditions => {:loner_hash => self.loner_hash, :locked_by => nil}).first.nil?
           else
             true
           end
@@ -25,7 +25,7 @@ module Delayed
               hashable_string += "::#{attribute_name}:#{payload_object.send(attribute_name)}"
             end
           else
-            hashable_string = "#{payload_object.method_name}::id:#{payload_object.id}"
+            hashable_string = "#{payload_object.method}::id:#{payload_object.object}"
           end
           Digest::MD5.base64digest(hashable_string)
         end
